@@ -17,19 +17,19 @@
 # 
 # Please implement a function which returns a 10% sample of a given data frame:
 
-# In[117]:
+# In[151]:
 
 
 def getSample(df,spark):
     df.createOrReplaceTempView("washing")
     res = spark.sql('select ts, temperature from washing where ts is not null order by ts asc').fillna(0)
     #return df.rdd.map(lambda row: (row.ts, row.temperature)).fillna(0).orderBy('ts').sample(False, 0.1)
-    return res.rdd.sample(False, 0.1).map(lambda row: (row.ts, row.temperature))
+    return spark.createDataFrame(res.rdd.sample(False, 0.1).map(lambda row: (row.ts, row.temperature)))
 
 
 # Now we want to create a histogram and boxplot. Please ignore the sampling for now and retur a python list containing all temperature values from the data set
 
-# In[118]:
+# In[152]:
 
 
 def getListForHistogramAndBoxPlot(df,spark):
@@ -39,33 +39,36 @@ def getListForHistogramAndBoxPlot(df,spark):
 
 # Finally we want to create a run chart. Please return two lists (encapusalted in a python tuple object) containing temperature and timestamp (ts) ordered by timestamp. Please refere to the following link to learn more about tuples in python: https://www.tutorialspoint.com/python/python_tuples.htm
 
-# In[119]:
+# In[153]:
 
 
 #should return a tuple containing the two lists for timestamp and temperature
 #please make sure you take only 10% of the data by sampling
 #please also ensure that you sample in a way that the timestamp samples and temperature samples correspond (=> call sample on an object still containing both dimensions)
 def getListsForRunChart(df,spark):
-    s = getSample(df, spark)
+    #s = getSample(df, spark)
     #rows = s.fillna(0).orderBy('ts').collect()
     #timestamps = [x['ts'] for x in rows]
     #temperatures = [x['temperature'] for x in rows]
     #res_rdd = s.fillna(0).orderBy('ts')
     #timestamps = s.map(lambda (ts, temperature): ts).collect()
     #temperatures = s.map(lambda (ts, temperature): temperature).collect()
+    df.createOrReplaceTempView("washing")
+    res = spark.sql('select ts, temperature from washing where ts is not null order by ts asc').fillna(0)
+    s = res.rdd.sample(False, 0.1).map(lambda row: (row.ts, row.temperature))
     timestamps = s.map(lambda x: x[0]).collect()
     temperatures = s.map(lambda x: x[1]).collect()
     return (timestamps, temperatures)
     
 
 
-# In[120]:
+# In[139]:
 
 
 #s = getSample(df, spark)
 
 
-# In[121]:
+# In[140]:
 
 
 #s.take(10)
@@ -114,32 +117,32 @@ df = spark.read.parquet(cos.url('washing.parquet', 'courseradsnew-donotdelete-pr
 df.show()
 
 
-# In[125]:
+# In[141]:
 
 
 get_ipython().magic(u'matplotlib inline')
 import matplotlib.pyplot as plt
 
 
-# In[126]:
+# In[142]:
 
 
 #df.select('temperature').filter('temperature is not null').rdd.map(lambda row: row[0]).collect()
 
 
-# In[127]:
+# In[143]:
 
 
 #s = getSample(df, spark)
 
 
-# In[128]:
+# In[144]:
 
 
 #s
 
 
-# In[129]:
+# In[145]:
 
 
 #df.filter('temperature is not null').filter('ts is not null').o
@@ -150,7 +153,7 @@ import matplotlib.pyplot as plt
 #temperatures = [x['temperature'] for x in rows]
 
 
-# In[130]:
+# In[146]:
 
 
 #timestamps = [x['ts'] for x in rows]
@@ -158,34 +161,34 @@ import matplotlib.pyplot as plt
 #timestamps
 
 
-# In[131]:
+# In[147]:
 
 
 #temperatures = [x['temperature'] for x in rows]
 #temperatures
 
 
-# In[132]:
+# In[154]:
 
 
 plt.hist(getListForHistogramAndBoxPlot(df,spark))
 plt.show()
 
 
-# In[133]:
+# In[155]:
 
 
 plt.boxplot(getListForHistogramAndBoxPlot(df,spark))
 plt.show()
 
 
-# In[134]:
+# In[156]:
 
 
 lists = getListsForRunChart(df,spark)
 
 
-# In[135]:
+# In[157]:
 
 
 plt.plot(lists[0],lists[1])
