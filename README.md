@@ -13,3 +13,5 @@ Slides of my presentation can be found [here](https://github.com/YuryChebiryak/I
 <p align="center">
   <img src="https://github.com/YuryChebiryak/IBM_advanced_data_science/blob/master/certificate.PNG" width="100%" height="100%">
 </p>
+
+Verified badge [on acclaim](https://www.youracclaim.com/badges/03555b7f-2036-48c5-b0ca-c3741e7244a9)
